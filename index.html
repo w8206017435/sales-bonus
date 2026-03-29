@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+          content="width=device-width, user-scalable=no,
+                   initial-scale=1.0, maximum-scale=1.0,
+                   minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Анализ продаж магазина</title>
 </head>
@@ -13,15 +15,48 @@
     <script src="data/dataset_1.js"></script>
     <script src="src/main.js"></script>
     <script>
+        console.log("=== Исходные данные ===");
         console.log(data);
 
+        // Шаг 1: Анализ продаж с коллектором метрик
         const report = analyzeSalesData(data, {
             calculateRevenue: calculateSimpleRevenue,
-            calculateBonus: calculateBonusByProfit
+            calculateBonus: calculateBonusByProfit,
+            collectMetrics: defaultMetricsCollector
         });
 
-        if (console.table) console.table(report);
-        else console.log(report);
+        console.log("=== Рейтинг продавцов ===");
+        if (console.table) {
+            console.table(report.map(function(s) {
+                return {
+                    seller_id: s.seller_id,
+                    name: s.name,
+                    sales_count: s.sales_count,
+                    revenue: s.revenue,
+                    profit: s.profit,
+                    bonus: s.bonus,
+                    top_products: s.top_products.join(", ")
+                };
+            }));
+        } else {
+            console.log(report);
+        }
+
+        // Шаг 2: Расчёт бонусов через массив функций
+        var bonusResults = calculateBonuses(report, [
+            bonusBestCustomerAttractor,
+            bonusBestCustomerRetention,
+            bonusLargestReceiptCustomer,
+            bonusHighestAvgProfit,
+            bonusConsistentGrowth
+        ]);
+
+        console.log("=== Специальные бонусы ===");
+        if (console.table) {
+            console.table(bonusResults);
+        } else {
+            console.log(bonusResults);
+        }
     </script>
 </body>
 </html>
